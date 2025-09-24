@@ -62,7 +62,7 @@ Antes de comenzar asegúrate de tener instalado:
 
 ---
 
-## 1. Iniciar servicios de Hadoop
+## 1. CLonar el repositorio
 ```bash
 /opt/hadoop-3.3.6/sbin/start-all.sh
 

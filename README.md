@@ -62,30 +62,31 @@ Antes de comenzar asegúrate de tener instalado:
 
 ---
 
-## 1. Inicializar hadoop
+## PASO A PASO
 
 ```bash
+## 1. Inicializar hadoop
 /opt/hadoop-3.3.6/sbin/start-all.sh
 
-## 2. CLonar el repositorio
 ```bash
+## 2. CLonar el repositorio
 git clone https://github.com/clever109719/BIG-DATA-CASO-RIPLEY-G9.git
 cd BIG-DATA-CASO-RIPLEY-G9
 
-## 3. Crear entorno virtual de Python
 ```bash
+## 3. Crear entorno virtual de Python
 python3 -m venv proyectoripley_env
 
-## 4. Activar el entorno virtual
 ```bash
+## 4. Activar el entorno virtual
 source proyectoripley_env/bin/activate
 
-## 5. Instalar dependencias iniciales
 ```bash
+## 5. Instalar dependencias iniciales
 pip install -r requirements.txt
 
-## 6. Para desactivarlo más adelante
 ```bash
+## 6. Para desactivarlo más adelante
 deactivate
 
 ## 7. Configuración inicial en HDFS

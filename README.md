@@ -119,3 +119,4 @@ hdfs dfs -cat /user/ripley/raw/ripley_youtube_comments.json | less
 
 ## Para copiarlo a tu máquina local 
 hdfs dfs -get /user/ripley/raw/ripley_youtube_comments.json .
+hdfs dfs -get /user/ripley/raw/ripley_reddit_comments.json .

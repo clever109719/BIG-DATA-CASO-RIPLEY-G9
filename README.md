@@ -101,3 +101,21 @@ hdfs dfs -mkdir -p /user/ripley/analytics
 
 # Permisos (opcional)
 hdfs dfs -chmod -R 755 /user/ripley
+
+## COMANDOS EXTRAS:
+mkdir -p /home/matias/hadoopdata/hdfs/namenode
+mkdir -p /home/matias/hadoopdata/hdfs/datanode
+chmod -R 700 /home/matias/hadoopdata
+
+
+## HDFS
+hdfs dfs -chmod -R 777 /user/ripley/raw
+
+## Para ir y ver qué hay en /user/ripley/raw:
+hdfs dfs -ls /user/ripley/raw
+
+## Para ver el contenido del JSON:
+hdfs dfs -cat /user/ripley/raw/ripley_youtube_comments.json | less
+
+## Para copiarlo a tu máquina local (Linux):
+hdfs dfs -get /user/ripley/raw/ripley_youtube_comments.json .

@@ -25,7 +25,7 @@ def main():
     print("Total de comentarios después de limpieza:", df_clean.count())
 
     print("Guardando datos procesados en HDFS...")
-    df_clean.write.mode("overwrite").json(config.PROCESSED_PATH)
+    df_clean.write.mode("overwrite").parquet(config.PROCESSED_PATH)
 
     print(f"Limpieza completada. Datos en: {config.PROCESSED_PATH}")
 

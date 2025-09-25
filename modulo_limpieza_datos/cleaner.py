@@ -36,7 +36,8 @@ def clean_comments(df: DataFrame) -> DataFrame:
     "trabaja desde casa", "gana dinero rapido", "ingresos pasivos", "hazte rico",
     "multiplica tu dinero", "inversion segura", "entra a este link", "visita mi pagina",
     "sigue el enlace", "pagina oficial", "suscribete ahora", "dale follow", "comparte con tus amigos",
-    "ventas por whatsapp", "contáctame al inbox", "telegram", "crypto", "bitcoin", "usdt"
+    "ventas por whatsapp", "contáctame al inbox", "telegram", "crypto", "bitcoin", "usdt", "ahahahahhahahahaha",
+    ""
     ]
 
     pattern = "|".join([re.escape(w) for w in spam_words])

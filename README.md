@@ -117,5 +117,5 @@ hdfs dfs -ls /user/ripley/raw
 ## Para ver el contenido del JSON:
 hdfs dfs -cat /user/ripley/raw/ripley_youtube_comments.json | less
 
-## Para copiarlo a tu máquina local (Linux):
+## Para copiarlo a tu máquina local 
 hdfs dfs -get /user/ripley/raw/ripley_youtube_comments.json .

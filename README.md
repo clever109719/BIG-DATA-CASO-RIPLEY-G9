@@ -119,3 +119,15 @@ hdfs dfs -cat /user/ripley/raw/ripley_youtube_comments.json | less
 
 ## Para copiarlo a tu máquina local 
 hdfs dfs -get /user/ripley/raw/ripley_youtube_comments.json .
+
+
+# Para visualizar los datos ya transformados
+## En consola ingresar
+pyspark
+## Luego esto para visualizar los comentarios
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("VerParquet").getOrCreate()
+
+df = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_youtube_comments_clean")
+df.select("comment").show(20, truncate=False)
+

@@ -101,6 +101,3 @@ hdfs dfs -mkdir -p /user/ripley/analytics
 
 # Permisos (opcional)
 hdfs dfs -chmod -R 755 /user/ripley
-
-
----

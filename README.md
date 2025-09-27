@@ -122,12 +122,22 @@ hdfs dfs -get /user/ripley/raw/ripley_youtube_comments.json .
 hdfs dfs -get /user/ripley/raw/ripley_reddit_comments.json .
 
 # Para visualizar los datos ya transformados
-## En consola ingresar
+## En consola ingresar:
 pyspark
-## Luego esto para visualizar los comentarios
+## Luego esto para visualizar los comentarios:
 from pyspark.sql import SparkSession
-spark = SparkSession.builder.appName("VerParquet").getOrCreate()
+spark = SparkSession.builder.appName("VerDatosLimpios").getOrCreate()
+path = "hdfs://localhost:9000/user/ripley/processed/ripley_all_comments_clean"
+df = spark.read.parquet(path)
+print("Esquema del DataFrame:")
+df.printSchema()
+total = df.count()
+print(f"\nTotal de comentarios limpios: {total}")
+print("\nEjemplo de los 10 primeros comentarios limpios:")
+df.select("source", "title", "comment") \
+  .filter(df.comment.isNotNull()) \
+  .filter(df.comment != "") \
+  .show(10, truncate=False)
 
-df = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_youtube_comments_clean")
-df.select("comment").show(20, truncate=False)
 
+# Con eso veras los datos mas legibles, al ser parquet, esto recalcando unicamente para visualizar los datos

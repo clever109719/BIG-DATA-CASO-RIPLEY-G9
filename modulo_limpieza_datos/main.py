@@ -1,26 +1,40 @@
 from spark_client import get_spark
 from cleaner import clean_comments
 import config
-from pyspark.sql.functions import explode, col
+from pyspark.sql.functions import explode, col, lit
 
 def main():
     spark = get_spark()
 
     print("Leyendo datos crudos desde HDFS...")
-    df_raw = spark.read.json(config.RAW_PATH, multiLine=True)
+    df_youtube = spark.read.json(config.RAW_YT_PATH, multiLine=True)
+    df_reddit = spark.read.json(config.RAW_RD_PATH, multiLine=True)
 
-    # Expandir la lista de comentarios
-    df = df_raw.withColumn("comment", explode(col("comments"))) \
-               .select(
-                   col("id").alias("video_id"),
-                   col("title"),
-                   col("comment")
-               )
+    # ---- YouTube ----
+    df_youtube = df_youtube.withColumn("comment", explode(col("comments"))) \
+        .select(
+            col("id").alias("content_id"),
+            col("title"),
+            col("comment")
+        ) \
+        .withColumn("source", lit("youtube"))
 
-    print("Total de comentarios antes de limpieza:", df.count())
+    # ---- Reddit ----
+    df_reddit = df_reddit.withColumn("comment", explode(col("comments"))) \
+        .select(
+            col("id").alias("content_id"),
+            col("title"),
+            col("comment")
+        ) \
+        .withColumn("source", lit("reddit"))
+
+    # ---- Unir ambos ----
+    df_union = df_youtube.unionByName(df_reddit)
+
+    print("Total de comentarios antes de limpieza:", df_union.count())
 
     print("Aplicando limpieza y normalización...")
-    df_clean = clean_comments(df)
+    df_clean = clean_comments(df_union)
 
     print("Total de comentarios después de limpieza:", df_clean.count())
 
@@ -30,6 +44,7 @@ def main():
     print(f"Limpieza completada. Datos en: {config.PROCESSED_PATH}")
 
     spark.stop()
+
 
 if __name__ == "__main__":
     main()

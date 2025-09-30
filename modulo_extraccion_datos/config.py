@@ -77,5 +77,5 @@ OUTPUT_YOUTUBE_HDFS_PATH = "/user/ripley/raw/ripley_youtube_comments.json"
 REDDIT_CLIENT_ID = "EPbEXFaUGFUcSKcsjHt0yw"
 REDDIT_CLIENT_SECRET = "jTcAtstrzBSU1e0e4SnqUA8anT9zDQ"
 REDDIT_USER_AGENT = "ProyectoGrupo9BIGDATA"
-MAX_REDDIT_COMMENTS = 1000
+MAX_REDDIT_COMMENTS = 100
 OUTPUT_REDDIT_HDFS_PATH = "/user/ripley/raw/ripley_reddit_comments.json"

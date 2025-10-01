@@ -2,16 +2,34 @@ from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     col, length, trim, explode, to_date, lower, regexp_replace, explode_outer
 )
+from pyspark.sql import functions as F
 
 # -----------------------
-# Patrón de limpieza
+# Patrón de limpieza general (URLs, espacios vacíos)
 # -----------------------
 pattern = r"^(http|www|\s*)$"
+
+# -----------------------
+# Palabras clave de spam (ajustables)
+# -----------------------
+SPAM_KEYWORDS = [
+    "suscríbete", "subscribe", "sígueme", "follow me",
+    "dale like", "me gusta", "comparte", "haz clic", "click here",
+    "link en bio", "enlace", "promo", "gratis", "free", "giveaway",
+    "visita mi canal", "canal", "youtube.com", "instagram", "tiktok",
+    "dinero fácil", "trabaja desde casa", "oferta", "descuento",
+    "100%", "garantizado", "spam", "http", "www", "👇", "👆",
+    "únete", "registrate", "hazlo ahora", "descarga", "download",
+    "ganar dinero", "no te pierdas", "nuevo video", "nuevo vídeo", "ahahahahhahahahaha"
+]
 
 # -----------------------
 # Normalización de columna
 # -----------------------
 def normalize_column(df: DataFrame, colname: str) -> DataFrame:
+    """
+    Convierte el texto a minúsculas, quita espacios, símbolos y caracteres especiales.
+    """
     return (
         df.withColumn(
             colname,
@@ -20,20 +38,34 @@ def normalize_column(df: DataFrame, colname: str) -> DataFrame:
     )
 
 # -----------------------
-# Limpieza
+# Filtro de spam textual
+# -----------------------
+def filter_spam(df: DataFrame, colname: str = "comment") -> DataFrame:
+    """
+    Elimina comentarios que contengan palabras o frases típicas de spam.
+    """
+    spam_pattern = "|".join([f"(?i){word}" for word in SPAM_KEYWORDS])
+    return df.filter(~col(colname).rlike(spam_pattern))
+
+# -----------------------
+# Limpieza para YouTube
 # -----------------------
 def clean_comments_youtube(df: DataFrame) -> DataFrame:
     df = normalize_column(df, "comment")
     df = df.filter(length(trim(col("comment"))) > 2)
     df = df.filter(~col("comment").rlike(pattern))
+    df = filter_spam(df, "comment")  # Filtro de spam agregado
     df = df.dropDuplicates(["content_id", "comment"])
     return df.select("content_id", "comment", "published_date", "likes")
 
-
+# -----------------------
+# Limpieza para Reddit
+# -----------------------
 def clean_comments_reddit(df: DataFrame) -> DataFrame:
     df = normalize_column(df, "comment")
     df = df.filter(length(trim(col("comment"))) > 2)
     df = df.filter(~col("comment").rlike(pattern))
+    df = filter_spam(df, "comment")  # Filtro de spam agregado
     df = df.dropDuplicates(["content_id", "comment"])
     return df.select("content_id", "comment", "published_date", "score")
 
@@ -41,6 +73,9 @@ def clean_comments_reddit(df: DataFrame) -> DataFrame:
 # Procesamiento YouTube
 # -----------------------
 def process_youtube(spark, raw_path: str) -> DataFrame:
+    """
+    Lee datos crudos de YouTube desde HDFS, los transforma y limpia.
+    """
     df = spark.read.json(raw_path, multiLine=True)
 
     df = df.withColumn("comment", explode_outer(col("comments"))) \
@@ -63,6 +98,9 @@ def process_youtube(spark, raw_path: str) -> DataFrame:
 # Procesamiento Reddit
 # -----------------------
 def process_reddit(spark, raw_path: str) -> DataFrame:
+    """
+    Lee datos crudos de Reddit desde HDFS, los transforma y limpia.
+    """
     df = spark.read.json(raw_path, multiLine=True)
 
     df = df.select(
@@ -77,6 +115,7 @@ def process_reddit(spark, raw_path: str) -> DataFrame:
         col("comment.replies").alias("replies")
     )
 
+    # Desanidar replies
     df_replies = df.filter(col("replies").isNotNull()) \
         .select(
             col("content_id"),
@@ -89,6 +128,7 @@ def process_reddit(spark, raw_path: str) -> DataFrame:
             col("reply.score").alias("score")
         )
 
+    # Combinar comentarios y respuestas
     df_all = df.select("content_id", "comment_id", "comment", "published_date", "score") \
                .unionByName(df_replies)
 
@@ -100,5 +140,8 @@ def process_reddit(spark, raw_path: str) -> DataFrame:
 
     return df_clean
 
+# -----------------------
+# Utilidad para leer JSON
+# -----------------------
 def load_json(spark, path: str) -> DataFrame:
     return spark.read.json(path, multiLine=True)

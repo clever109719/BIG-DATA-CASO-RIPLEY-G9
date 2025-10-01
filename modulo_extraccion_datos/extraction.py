@@ -1,7 +1,7 @@
 from modulo_extraccion_datos.youtube_client import fetch_youtube_data, count_videos_and_comments
-from reddit_client import fetch_reddit_data, count_posts_and_comments
-from hdfs_client import save_to_hdfs
-from config import OUTPUT_YOUTUBE_HDFS_PATH, OUTPUT_REDDIT_HDFS_PATH
+from modulo_extraccion_datos.reddit_client import fetch_reddit_data, count_posts_and_comments
+from modulo_extraccion_datos.hdfs_client import save_to_hdfs
+from modulo_extraccion_datos.config import OUTPUT_YOUTUBE_HDFS_PATH, OUTPUT_REDDIT_HDFS_PATH
 
 def extraction():
     # YouTube

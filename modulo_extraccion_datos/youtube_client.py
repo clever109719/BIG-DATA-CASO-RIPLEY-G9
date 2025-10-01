@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from config import API_KEYS, QUERIES, MAX_VIDEOS, MAX_COMMENTS_PER_VIDEO
+from modulo_extraccion_datos.config import API_KEYS, QUERIES, MAX_VIDEOS, MAX_COMMENTS_PER_VIDEO
 
 def get_youtube_client(api_key):
     return build("youtube", "v3", developerKey=api_key)

@@ -154,3 +154,47 @@ df_reddit.show(10, truncate=False)
 
 
 # Con eso veras los datos mas legibles, al ser parquet, esto recalcando unicamente para visualizar los datos
+
+###########################
+#### Para presentacion ####
+###########################
+# 1 inicializar servicios
+/opt/hadoop-3.3.6/sbin/start-all.sh
+
+# 2 inicializar entorno
+source proyectoripley_env/bin/activate
+
+# 3 ver carpetas hdfs
+hdfs dfs -ls /user/ripley
+
+# 4 ver datos crudos
+hdfs dfs -ls /user/ripley/raw
+
+# 5 ver contenido de youtube crudo
+hdfs dfs -cat /user/ripley/raw/ripley_youtube_comments.json | head -n 20
+
+# 6 ver contenido de reddit crudo
+hdfs dfs -cat /user/ripley/raw/ripley_reddit_comments.json | head -n 20
+
+# 7 ver datos procesados
+hdfs dfs -ls /user/ripley/processed
+
+#INGRESAR en consola antes de los 2 siguientes comandos
+pyspark
+# 8 ver contenido de youtube procesado
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("VerDatosLimpios").getOrCreate()
+
+df_youtube = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_youtube_clean.parquet")
+
+print("Total registros YouTube:", df_youtube.count())
+df_youtube.printSchema()
+df_youtube.show(10, truncate=False)
+
+# 9 ver contenido de reddit procesado
+df_reddit = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_reddit_clean.parquet")
+
+print("Total registros Reddit:", df_reddit.count())
+df_reddit.printSchema()
+df_reddit.show(10, truncate=False)

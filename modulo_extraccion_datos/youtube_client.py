@@ -51,13 +51,18 @@ def fetch_comments(video_id, youtube):
 
             comments.append(comment)
 
-        return comments
-
-    except Exception as e:
-        if "commentsDisabled" in str(e):
+    except HttpError as e:
+        err_msg = str(e)
+        if "commentsDisabled" in err_msg:
+            print(f"Video {video_id} con comentarios deshabilitados.")
+            return []
+        elif "processingFailure" in err_msg:
+            print(f"Error de procesamiento en video {video_id}, se omite.")
             return []
         else:
-            raise e
+            raise
+
+    return comments
 
 def fetch_youtube_data():
     all_data = []

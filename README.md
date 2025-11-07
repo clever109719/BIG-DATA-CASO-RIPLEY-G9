@@ -42,7 +42,7 @@ El flujo de datos contempla:
 - **Hadoop YARN** → gestión de recursos del clúster.  
 - **Apache Spark / PySpark** → procesamiento masivo de datos.  
 - **APIs (YouTube, Reddit, Google, Facebook)** → extracción de comentarios.  
-- **Power BI** → visualización e inteligencia de negocio.  
+- **Apache Superset** → visualización e inteligencia de negocio.  
 
 ---
 
@@ -154,6 +154,26 @@ df_reddit.show(10, truncate=False)
 
 
 # Con eso veras los datos mas legibles, al ser parquet, esto recalcando unicamente para visualizar los datos
+
+# Para visualizar el analisis de sientimiento
+## En consola ingresar:
+pyspark
+## Luego esto para visualizar los comentarios de youtube
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("VerAnalisisSentimientoYT").getOrCreate()
+
+df_youtube_sent = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_sentiment.parquet")
+
+df_youtube_sent.printSchema()
+df_youtube_sent.show(10, truncate=False)
+
+
+#Para ver los de reddit
+df_reddit_sent = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_sentiment.parquet")
+
+df_reddit_sent.printSchema()
+df_reddit_sent.show(10, truncate=False)
 
 ###########################
 #### Para presentacion ####

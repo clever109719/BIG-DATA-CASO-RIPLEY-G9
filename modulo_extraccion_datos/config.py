@@ -73,8 +73,8 @@ API_KEYS = [
     "AIzaSyCFdXrJ8vJNv5TXFn6KMRjTN4cbmNPBFzI",
     ]
 
-MAX_VIDEOS = 1
-MAX_COMMENTS_PER_VIDEO = 1
+MAX_VIDEOS = 500
+MAX_COMMENTS_PER_VIDEO = 500
 OUTPUT_YOUTUBE_HDFS_PATH = "/user/ripley/raw/ripley_youtube_comments.json"
 
 # ==========================
@@ -84,5 +84,5 @@ OUTPUT_YOUTUBE_HDFS_PATH = "/user/ripley/raw/ripley_youtube_comments.json"
 REDDIT_CLIENT_ID = "EPbEXFaUGFUcSKcsjHt0yw"
 REDDIT_CLIENT_SECRET = "jTcAtstrzBSU1e0e4SnqUA8anT9zDQ"
 REDDIT_USER_AGENT = "ProyectoGrupo9BIGDATA"
-MAX_REDDIT_COMMENTS = 1
+MAX_REDDIT_COMMENTS = 500
 OUTPUT_REDDIT_HDFS_PATH = "/user/ripley/raw/ripley_reddit_comments.json"

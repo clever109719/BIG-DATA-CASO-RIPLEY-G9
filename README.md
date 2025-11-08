@@ -218,3 +218,67 @@ df_reddit = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripl
 print("Total registros Reddit:", df_reddit.count())
 df_reddit.printSchema()
 df_reddit.show(10, truncate=False)
+
+
+
+# Tendencias y Participación
+
+# En consola ingresar:
+pyspark
+
+# Luego esto para visualizar los resultados de YouTube
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("VerAnalisisTendenciasYT").getOrCreate()
+
+# Frecuencia de palabras
+df_youtube_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_palabras.parquet")
+df_youtube_pal.printSchema()
+df_youtube_pal.show(10, truncate=False)
+
+# Promedio de likes por fuente
+df_youtube_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_promedio.parquet")
+df_youtube_prom.printSchema()
+df_youtube_prom.show()
+
+# Distribución de likes por rango
+df_youtube_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_rangos.parquet")
+df_youtube_rangos.printSchema()
+df_youtube_rangos.show()
+
+# Engagement (likes) promedio por longitud del comentario
+df_youtube_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_engagement.parquet")
+df_youtube_eng.printSchema()
+df_youtube_eng.show()
+
+
+# Luego esto para visualizar los resultados de Reddit
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("VerAnalisisTendenciasReddit").getOrCreate()
+
+# Frecuencia de palabras
+df_reddit_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_palabras.parquet")
+df_reddit_pal.printSchema()
+df_reddit_pal.show(10, truncate=False)
+
+# Promedio de score por fuente
+df_reddit_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_promedio.parquet")
+df_reddit_prom.printSchema()
+df_reddit_prom.show()
+
+# Distribución de score por rango
+df_reddit_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_rangos.parquet")
+df_reddit_rangos.printSchema()
+df_reddit_rangos.show()
+
+# Engagement (score) promedio por longitud del comentario
+df_reddit_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_engagement.parquet")
+df_reddit_eng.printSchema()
+df_reddit_eng.show()
+
+# Cada conjunto Parquet refleja:
+# *_palabras.parquet → Palabras más frecuentes (tendencias temáticas).
+# *_promedio.parquet → Nivel medio de interacción.
+# *_rangos.parquet → Distribución de interacción por niveles.
+# *_engagement.parquet → Relación entre longitud del comentario y nivel de participación.

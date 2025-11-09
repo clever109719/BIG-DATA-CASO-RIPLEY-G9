@@ -6,7 +6,7 @@ from modulo_carga.load import load
 def main():
     # --- Extracción ---
     print(">>> INICIANDO EXTRACCIÓN")
-    extraction()
+    #extraction()
 
     # --- TRANSFORMACIÓN ---
     print(">>> INICIANDO TRANSFORMACIÓN")

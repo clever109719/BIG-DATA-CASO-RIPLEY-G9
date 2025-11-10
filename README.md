@@ -278,7 +278,7 @@ df_reddit_eng.printSchema()
 df_reddit_eng.show()
 
 # Cada conjunto Parquet refleja:
-# *_palabras.parquet → Palabras más frecuentes (tendencias temáticas).
-# *_promedio.parquet → Nivel medio de interacción.
-# *_rangos.parquet → Distribución de interacción por niveles.
-# *_engagement.parquet → Relación entre longitud del comentario y nivel de participación.
+# *_palabras.parquet → Tendencias temáticas. Palabras más frecuentes, sentimiento predominante y periodo en que fueron mencionadas.
+# *_promedio.parquet → Participación general. Incluye número total de comentarios (n_total), suma de interacciones (suma_interaccion) y el promedio de participación (promedio_interaccion).
+# *_rangos.parquet → Participación estructurada. Distribuye los comentarios por niveles de interacción (0–1, 2–5, 6–10, 10+).
+# *_engagement.parquet → Relación longitud–interacción. Mide el promedio de interacción por tipo de comentario (Corto, Medio, Largo), con el total de comentarios (n_comentarios) y el total estimado de interacciones (total_interaccion_estimado).

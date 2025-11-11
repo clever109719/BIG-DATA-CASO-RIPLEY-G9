@@ -1,6 +1,6 @@
 import praw
 from datetime import datetime
-from config import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT, QUERIES, MAX_REDDIT_COMMENTS
+from modulo_extraccion_datos.config import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT, QUERIES, MAX_REDDIT_COMMENTS
 
 KEYWORDS = [
     "ripley", "tienda", "tiendas", "compra", "compras", "comprar", 

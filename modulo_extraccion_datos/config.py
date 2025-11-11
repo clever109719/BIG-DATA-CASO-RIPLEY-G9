@@ -64,10 +64,17 @@ API_KEYS = [
     "AIzaSyC9VeSfIc7jWxkHrwz9xy_8vMY2zEfdBIY",
     "AIzaSyA6PxR_HIrxkk44Ks9fYYOJjg9r0MYVVbk",
     "AIzaSyAZUuUJMl03tFsY_eeIm7vzbAwldE5M9I4",
+    "AIzaSyDTrGoAYhCrYdVl-JCCT1xsJwRHSgs0iLg",
+    "AIzaSyDUpyy6usQIx7LpansR6xfaPmm1hM4NMiQ",
+    "AIzaSyAnAAJSs4Kf2OOesm6oyD_qrCuTMQBhB80",
+    "AIzaSyCKOTbzKdekmE_-yNNl_ExuVCwYkEbSY4A",
+    "AIzaSyBwucgapxAq1fMoNcoWVPSDiHPvQoXlB7w",
+    "AIzaSyCo9-6Ce7DuCdAO06i9bE5W7YGilmEn67Y",
+    "AIzaSyCFdXrJ8vJNv5TXFn6KMRjTN4cbmNPBFzI",
     ]
 
-MAX_VIDEOS = 10
-MAX_COMMENTS_PER_VIDEO = 10
+MAX_VIDEOS = 1
+MAX_COMMENTS_PER_VIDEO = 1
 OUTPUT_YOUTUBE_HDFS_PATH = "/user/ripley/raw/ripley_youtube_comments.json"
 
 # ==========================
@@ -77,5 +84,5 @@ OUTPUT_YOUTUBE_HDFS_PATH = "/user/ripley/raw/ripley_youtube_comments.json"
 REDDIT_CLIENT_ID = "EPbEXFaUGFUcSKcsjHt0yw"
 REDDIT_CLIENT_SECRET = "jTcAtstrzBSU1e0e4SnqUA8anT9zDQ"
 REDDIT_USER_AGENT = "ProyectoGrupo9BIGDATA"
-MAX_REDDIT_COMMENTS = 100
+MAX_REDDIT_COMMENTS = 1
 OUTPUT_REDDIT_HDFS_PATH = "/user/ripley/raw/ripley_reddit_comments.json"

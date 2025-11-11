@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from config import API_KEYS, QUERIES, MAX_VIDEOS, MAX_COMMENTS_PER_VIDEO
+from modulo_extraccion_datos.config import API_KEYS, QUERIES, MAX_VIDEOS, MAX_COMMENTS_PER_VIDEO
 
 def get_youtube_client(api_key):
     return build("youtube", "v3", developerKey=api_key)
@@ -51,13 +51,18 @@ def fetch_comments(video_id, youtube):
 
             comments.append(comment)
 
-        return comments
-
-    except Exception as e:
-        if "commentsDisabled" in str(e):
+    except HttpError as e:
+        err_msg = str(e)
+        if "commentsDisabled" in err_msg:
+            print(f"Video {video_id} con comentarios deshabilitados.")
+            return []
+        elif "processingFailure" in err_msg:
+            print(f"Error de procesamiento en video {video_id}, se omite.")
             return []
         else:
-            raise e
+            raise
+
+    return comments
 
 def fetch_youtube_data():
     all_data = []

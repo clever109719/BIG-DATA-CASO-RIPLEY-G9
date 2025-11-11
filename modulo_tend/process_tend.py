@@ -22,18 +22,20 @@ def process_tend(spark: SparkSession):
 
     # Análisis para YouTube
     yt_palabras = tendencia_palabras(df_youtube, "YouTube")
-    yt_avg = participacion_promedio(df_youtube, "YouTube", "likes")
     yt_rangos = distribucion_rangos(df_youtube, "YouTube", "likes")
     yt_eng = engagement_por_longitud(df_youtube, "YouTube", "likes")
+    yt_avg = participacion_promedio(df_youtube, "YouTube", "likes")
 
     # Análisis para Reddit
     rd_palabras = tendencia_palabras(df_reddit, "Reddit")
-    rd_avg = participacion_promedio(df_reddit, "Reddit", "score")
     rd_rangos = distribucion_rangos(df_reddit, "Reddit", "score")
     rd_eng = engagement_por_longitud(df_reddit, "Reddit", "score")
+    rd_avg = participacion_promedio(df_reddit, "Reddit", "score")
 
     # Guardado en HDFS
     print(">>> Guardando resultados analíticos en HDFS (/user/ripley/analytics)...")
-    load_tend(yt_palabras, yt_avg, yt_rangos, yt_eng, rd_palabras, rd_avg, rd_rangos, rd_eng)
-
+    load_tend(
+        yt_palabras, yt_rangos, yt_eng, yt_avg,
+        rd_palabras, rd_rangos, rd_eng, rd_avg
+    )
     print(">>> Análisis de tendencias y participación completado y guardado correctamente.")

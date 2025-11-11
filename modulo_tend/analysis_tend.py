@@ -1,7 +1,7 @@
 from pyspark.sql import functions as F, Window
 from pyspark.sql import DataFrame
 
-# Palabras vacías o irrelevantes (en inglés y español) que deben omitirse
+# STOPWORDS
 STOPWORDS_EN = set("""
 actually alien aliens amigo and anos anything app año años about alguien all also are así
 being before bianca but campeonato championship could day de dice did días día está estas
@@ -21,7 +21,6 @@ there been work why down come without enough probably should always main story t
 away wins which priest edge ripleys
 """.split())
 
-# Palabras vacías comunes en español (artículos, pronombres, preposiciones, etc.)
 STOPWORDS_ES = set("""
 a al algo algunas algunos ante antes aquel aquella aquellas aquellos aqui ahí asi aun
 aunque bajo bien cada casi como con contra cual cuales cualquier cuando de del desde
@@ -37,26 +36,22 @@ tuyo tuyos un una uno unos vosotras vosotros ya y yo ahora solo sola solos solas
 porfavor porfa oye oigan bueno buenas buenos ok vale
 """.split())
 
-# Unión de todas las palabras que deben omitirse
 STOPWORDS_ALL = STOPWORDS_ES.union(STOPWORDS_EN)
 
-# Palabras clave del dominio Ripley que deben mantenerse aunque estén en stopwords
 DOMINIO_KEEP = {
     "ripley", "tarjeta", "tienda", "banco", "credito", "servicio",
     "producto", "precio", "compra", "oferta", "promocion", "descuento",
     "garantia", "entrega", "envio", "devolucion", "reembolso", "delivery"
 }
 
-# Frecuencia de palabras por fuente (tendencia temática)
+# TENDENCIA DE PALABRA
 def tendencia_palabras(df: DataFrame, fuente: str) -> DataFrame:
-    # Divide los comentarios palabra por palabra y elimina caracteres no alfabéticos
     palabras = (
         df.withColumn("palabra", F.explode(F.split(F.lower(F.col("comment")), r"\s+")))
           .withColumn("palabra", F.regexp_replace("palabra", r"[^a-záéíóúñ]", ""))
           .filter(F.length("palabra") > 2)
     )
 
-    # Función auxiliar para filtrar palabras relevantes
     def es_valida(p):
         if not p:
             return False
@@ -71,10 +66,8 @@ def tendencia_palabras(df: DataFrame, fuente: str) -> DataFrame:
     es_valida_udf = F.udf(es_valida, "boolean")
     palabras_filtradas = palabras.filter(es_valida_udf(F.col("palabra")))
 
-    # Cuenta la frecuencia de cada palabra
     freq = palabras_filtradas.groupBy("palabra").agg(F.count("*").alias("frecuencia"))
 
-    # Obtiene el sentimiento predominante de cada palabra
     sent_por_pal = (
         palabras_filtradas.groupBy("palabra", "sentimiento")
         .agg(F.count("*").alias("c"))
@@ -85,7 +78,6 @@ def tendencia_palabras(df: DataFrame, fuente: str) -> DataFrame:
         .select("palabra", F.col("sentimiento").alias("sentimiento_pred"))
     )
 
-    # Determina las fechas mínima y máxima en las que se mencionó cada palabra
     fechas = (
         palabras_filtradas.groupBy("palabra")
         .agg(
@@ -100,7 +92,6 @@ def tendencia_palabras(df: DataFrame, fuente: str) -> DataFrame:
         )
     )
 
-    # Une todo en un solo DataFrame final
     out = (
         freq.join(sent_por_pal, "palabra", "left")
             .join(fechas, "palabra", "left")
@@ -110,25 +101,8 @@ def tendencia_palabras(df: DataFrame, fuente: str) -> DataFrame:
     )
     return out
 
-# Promedio de likes o score por fuente (participación general)
-def participacion_promedio(df: DataFrame, fuente: str, col_metric: str) -> DataFrame:
-    # Calcula el promedio de interacción (likes o score) por fuente, mostrando también el número total de comentarios y la suma total de interacciones.
-    df_avg = (
-        df.groupBy()
-          .agg(
-              F.count("*").alias("n_total"),
-              F.sum(F.col(col_metric)).alias("suma_interaccion"),
-              F.avg(F.col(col_metric)).alias("promedio_interaccion")
-          )
-          .withColumn("promedio_interaccion", F.round(F.col("promedio_interaccion"), 2))
-          .withColumn("suma_interaccion", F.round(F.col("suma_interaccion"), 2))
-          .withColumn("fuente", F.lit(fuente))
-    )
-    return df_avg
-
-# Distribución de likes o score por rangos (participación estructurada)
+# DISTRIBUCIÓN POR RANGOS
 def distribucion_rangos(df: DataFrame, fuente: str, col_metric: str) -> DataFrame:
-    # Clasifica los comentarios en rangos según el nivel de interacción
     df_rangos = (
         df.withColumn(
             "rango_interaccion",
@@ -144,9 +118,8 @@ def distribucion_rangos(df: DataFrame, fuente: str, col_metric: str) -> DataFram
     )
     return df_rangos
 
-# Promedio de likes/score por longitud del comentario (engagement)
+#ENGAGEMENT POR LONGITUD
 def engagement_por_longitud(df: DataFrame, fuente: str, col_metric: str) -> DataFrame:
-    # Calcula el promedio de interacción y número de comentarios según el rango de longitud del texto.
     df_len = (
         df.withColumn("longitud", F.length(F.col("comment")))
           .withColumn(
@@ -158,7 +131,8 @@ def engagement_por_longitud(df: DataFrame, fuente: str, col_metric: str) -> Data
           .groupBy("rango_longitud")
           .agg(
               F.count("*").alias("n_comentarios"),
-              F.round(F.avg(F.col(col_metric)), 2).alias("promedio_interaccion")
+              F.round(F.avg(F.col(col_metric)), 2).alias("promedio_interaccion"),
+              F.sum(F.col(col_metric)).alias("suma_interaccion")
           )
           .withColumn(
               "total_interaccion_estimado",
@@ -168,3 +142,18 @@ def engagement_por_longitud(df: DataFrame, fuente: str, col_metric: str) -> Data
           .orderBy("rango_longitud")
     )
     return df_len
+
+# PARTICIPACIÓN PROMEDIO GENERAL
+def participacion_promedio(df: DataFrame, fuente: str, col_metric: str) -> DataFrame:
+    df_avg = (
+        df.groupBy()
+          .agg(
+              F.count("*").alias("n_total"),
+              F.sum(F.col(col_metric)).alias("suma_interaccion"),
+              F.avg(F.col(col_metric)).alias("promedio_interaccion")
+          )
+          .withColumn("promedio_interaccion", F.round(F.col("promedio_interaccion"), 2))
+          .withColumn("suma_interaccion", F.round(F.col("suma_interaccion"), 2))
+          .withColumn("fuente", F.lit(fuente))
+    )
+    return df_avg

@@ -236,11 +236,6 @@ df_youtube_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics
 df_youtube_pal.printSchema()
 df_youtube_pal.show(10, truncate=False)
 
-# Promedio de likes por fuente
-df_youtube_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_promedio.parquet")
-df_youtube_prom.printSchema()
-df_youtube_prom.show()
-
 # Distribución de likes por rango
 df_youtube_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_rangos.parquet")
 df_youtube_rangos.printSchema()
@@ -250,6 +245,11 @@ df_youtube_rangos.show()
 df_youtube_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_engagement.parquet")
 df_youtube_eng.printSchema()
 df_youtube_eng.show()
+
+# Promedio de likes por fuente
+df_youtube_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_promedio.parquet")
+df_youtube_prom.printSchema()
+df_youtube_prom.show()
 
 
 # Luego esto para visualizar los resultados de Reddit
@@ -262,11 +262,6 @@ df_reddit_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/
 df_reddit_pal.printSchema()
 df_reddit_pal.show(10, truncate=False)
 
-# Promedio de score por fuente
-df_reddit_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_promedio.parquet")
-df_reddit_prom.printSchema()
-df_reddit_prom.show()
-
 # Distribución de score por rango
 df_reddit_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_rangos.parquet")
 df_reddit_rangos.printSchema()
@@ -276,6 +271,11 @@ df_reddit_rangos.show()
 df_reddit_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_engagement.parquet")
 df_reddit_eng.printSchema()
 df_reddit_eng.show()
+
+# Promedio de score por fuente
+df_reddit_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_promedio.parquet")
+df_reddit_prom.printSchema()
+df_reddit_prom.show()
 
 # Cada conjunto Parquet refleja:
 # *_palabras.parquet → Tendencias temáticas. Palabras más frecuentes, sentimiento predominante y periodo en que fueron mencionadas.

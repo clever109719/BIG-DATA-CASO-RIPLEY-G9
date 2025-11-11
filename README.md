@@ -210,11 +210,36 @@ df_youtube = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/rip
 
 print("Total registros YouTube:", df_youtube.count())
 df_youtube.printSchema()
-df_youtube.show(10, truncate=False)
+df_youtube.show(30, truncate=False)
 
 # 9 ver contenido de reddit procesado
 df_reddit = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_reddit_clean.parquet")
 
 print("Total registros Reddit:", df_reddit.count())
 df_reddit.printSchema()
-df_reddit.show(10, truncate=False)
+df_reddit.show(30, truncate=False)
+
+#=========================================#
+# Limpieza de datos del proyecto Ripley   #
+#=========================================#
+
+El pipeline de limpieza de datos procesa comentarios de **YouTube** y **Reddit** para obtener datos confiables y listos para análisis.
+
+### Flujo general
+1. **Extracción**  
+   - Lectura de los JSON crudos de HDFS con comentarios y metadatos.
+
+2. **Transformación y limpieza**  
+   - **Normalización:**  
+     - Texto en minúsculas  
+     - Eliminación de saltos de línea dobles (`\n\n`)  
+     - Eliminación de símbolos y caracteres especiales  
+     - Normalización de espacios múltiples
+   - **Filtrado de spam:** se eliminan comentarios con palabras o frases típicas de spam  
+   - **Filtrado por idioma:** solo se conservan comentarios en español  
+   - **Eliminación de duplicados:** se consideran `content_id` y `comment`  
+   - **Conversión de fechas:** a formato `YYYY-MM-DD`
+
+3. **Carga**  
+   - Guardado de los datos limpios en HDFS para análisis posterior.
+

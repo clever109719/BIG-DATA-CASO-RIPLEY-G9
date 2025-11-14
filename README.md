@@ -210,7 +210,7 @@ df_youtube = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/rip
 
 print("Total registros YouTube:", df_youtube.count())
 df_youtube.printSchema()
-df_youtube.show(10, truncate=False)
+df_youtube.show(30, truncate=False)
 
 # 9 ver contenido de reddit procesado
 df_reddit = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripley_reddit_clean.parquet")

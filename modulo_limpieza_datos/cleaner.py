@@ -24,18 +24,43 @@ SPAM_KEYWORDS = [
 ]
 
 # -----------------------
+# Detección de idioma
+# -----------------------
+from langdetect import detect, DetectorFactory
+from pyspark.sql.functions import udf
+from pyspark.sql.types import BooleanType
+
+DetectorFactory.seed = 0
+
+def is_spanish(text):
+    try:
+        return detect(text) == "es"
+    except:
+        return False
+
+udf_is_spanish = udf(is_spanish, BooleanType())
+
+# -----------------------
 # Normalización de columna
 # -----------------------
 def normalize_column(df: DataFrame, colname: str) -> DataFrame:
     """
-    Convierte el texto a minúsculas, quita espacios, símbolos y caracteres especiales.
+    Convierte el texto a minúsculas, quita símbolos excepto acentos, 
+    elimina saltos de línea dobles y espacios extra.
     """
-    return (
-        df.withColumn(
-            colname,
-            lower(trim(regexp_replace(col(colname), r"[^a-zA-Z0-9áéíóúñ\s]", "")))
-        )
+    df = df.withColumn(
+        colname,
+        lower(trim(regexp_replace(col(colname), r"\n\n", " ")))  # elimina \n\n
     )
+    df = df.withColumn(
+        colname,
+        regexp_replace(col(colname), r"[^a-zA-Z0-9áéíóúñ\s]", "")  # solo símbolos
+    )
+    df = df.withColumn(
+        colname,
+        regexp_replace(col(colname), r"\s+", " ")  # espacios múltiples → 1
+    )
+    return df
 
 # -----------------------
 # Filtro de spam textual
@@ -54,7 +79,8 @@ def clean_comments_youtube(df: DataFrame) -> DataFrame:
     df = normalize_column(df, "comment")
     df = df.filter(length(trim(col("comment"))) > 2)
     df = df.filter(~col("comment").rlike(pattern))
-    df = filter_spam(df, "comment")  # Filtro de spam agregado
+    df = filter_spam(df, "comment")
+    df = df.filter(udf_is_spanish(col("comment")))  # Filtra solo español
     df = df.dropDuplicates(["content_id", "comment"])
     return df.select("content_id", "comment", "published_date", "likes")
 
@@ -65,7 +91,8 @@ def clean_comments_reddit(df: DataFrame) -> DataFrame:
     df = normalize_column(df, "comment")
     df = df.filter(length(trim(col("comment"))) > 2)
     df = df.filter(~col("comment").rlike(pattern))
-    df = filter_spam(df, "comment")  # Filtro de spam agregado
+    df = filter_spam(df, "comment")
+    df = df.filter(udf_is_spanish(col("comment")))  # Filtra solo español
     df = df.dropDuplicates(["content_id", "comment"])
     return df.select("content_id", "comment", "published_date", "score")
 
@@ -73,9 +100,6 @@ def clean_comments_reddit(df: DataFrame) -> DataFrame:
 # Procesamiento YouTube
 # -----------------------
 def process_youtube(spark, raw_path: str) -> DataFrame:
-    """
-    Lee datos crudos de YouTube desde HDFS, los transforma y limpia.
-    """
     df = spark.read.json(raw_path, multiLine=True)
 
     df = df.withColumn("comment", explode_outer(col("comments"))) \
@@ -98,9 +122,6 @@ def process_youtube(spark, raw_path: str) -> DataFrame:
 # Procesamiento Reddit
 # -----------------------
 def process_reddit(spark, raw_path: str) -> DataFrame:
-    """
-    Lee datos crudos de Reddit desde HDFS, los transforma y limpia.
-    """
     df = spark.read.json(raw_path, multiLine=True)
 
     df = df.select(
@@ -115,7 +136,6 @@ def process_reddit(spark, raw_path: str) -> DataFrame:
         col("comment.replies").alias("replies")
     )
 
-    # Desanidar replies
     df_replies = df.filter(col("replies").isNotNull()) \
         .select(
             col("content_id"),
@@ -128,7 +148,6 @@ def process_reddit(spark, raw_path: str) -> DataFrame:
             col("reply.score").alias("score")
         )
 
-    # Combinar comentarios y respuestas
     df_all = df.select("content_id", "comment_id", "comment", "published_date", "score") \
                .unionByName(df_replies)
 

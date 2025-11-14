@@ -1,14 +1,29 @@
-# Procesamiento de datos
+# -----------------------------
+# Procesamiento de datos (Big Data)
+# -----------------------------
 pyspark>=3.4.0
 pandas>=2.0.0
-numpy>=1.24.0
+numpy==1.26.4
 pyarrow>=12.0.0
 hdfs==2.7.3
 
-# APIs y extracción de datos
+# -----------------------------
+# APIs y Extracción de datos
+# -----------------------------
 google-api-python-client>=2.100.0
 praw>=7.7.0
 requests>=2.31.0
 
-# Detección de idioma
-langdetect>=1.0.9
+# -----------------------------
+# Machine Learning y NLP
+# -----------------------------
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.0+cpu
+transformers==4.37.2
+sentencepiece==0.1.99
+accelerate==0.24.0
+
+# -----------------------------
+# Utilidades
+# -----------------------------
+tqdm>=4.66.0

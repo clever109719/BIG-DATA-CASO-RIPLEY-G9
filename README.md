@@ -217,29 +217,68 @@ df_reddit = spark.read.parquet("hdfs://localhost:9000/user/ripley/processed/ripl
 
 print("Total registros Reddit:", df_reddit.count())
 df_reddit.printSchema()
-df_reddit.show(30, truncate=False)
+df_reddit.show(10, truncate=False)
 
-#=========================================#
-# Limpieza de datos del proyecto Ripley   #
-#=========================================#
 
-El pipeline de limpieza de datos procesa comentarios de **YouTube** y **Reddit** para obtener datos confiables y listos para análisis.
 
-### Flujo general
-1. **Extracción**  
-   - Lectura de los JSON crudos de HDFS con comentarios y metadatos.
+# Tendencias y Participación
 
-2. **Transformación y limpieza**  
-   - **Normalización:**  
-     - Texto en minúsculas  
-     - Eliminación de saltos de línea dobles (`\n\n`)  
-     - Eliminación de símbolos y caracteres especiales  
-     - Normalización de espacios múltiples
-   - **Filtrado de spam:** se eliminan comentarios con palabras o frases típicas de spam  
-   - **Filtrado por idioma:** solo se conservan comentarios en español  
-   - **Eliminación de duplicados:** se consideran `content_id` y `comment`  
-   - **Conversión de fechas:** a formato `YYYY-MM-DD`
+# En consola ingresar:
+pyspark
 
-3. **Carga**  
-   - Guardado de los datos limpios en HDFS para análisis posterior.
+# Luego esto para visualizar los resultados de YouTube
+from pyspark.sql import SparkSession
 
+spark = SparkSession.builder.appName("VerAnalisisTendenciasYT").getOrCreate()
+
+# Frecuencia de palabras
+df_youtube_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_palabras.parquet")
+df_youtube_pal.printSchema()
+df_youtube_pal.show(10, truncate=False)
+
+# Distribución de likes por rango
+df_youtube_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_rangos.parquet")
+df_youtube_rangos.printSchema()
+df_youtube_rangos.show()
+
+# Engagement (likes) promedio por longitud del comentario
+df_youtube_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_engagement.parquet")
+df_youtube_eng.printSchema()
+df_youtube_eng.show()
+
+# Promedio de likes por fuente
+df_youtube_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_youtube_tendencias_promedio.parquet")
+df_youtube_prom.printSchema()
+df_youtube_prom.show()
+
+
+# Luego esto para visualizar los resultados de Reddit
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("VerAnalisisTendenciasReddit").getOrCreate()
+
+# Frecuencia de palabras
+df_reddit_pal = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_palabras.parquet")
+df_reddit_pal.printSchema()
+df_reddit_pal.show(10, truncate=False)
+
+# Distribución de score por rango
+df_reddit_rangos = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_rangos.parquet")
+df_reddit_rangos.printSchema()
+df_reddit_rangos.show()
+
+# Engagement (score) promedio por longitud del comentario
+df_reddit_eng = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_engagement.parquet")
+df_reddit_eng.printSchema()
+df_reddit_eng.show()
+
+# Promedio de score por fuente
+df_reddit_prom = spark.read.parquet("hdfs://localhost:9000/user/ripley/analytics/ripley_reddit_tendencias_promedio.parquet")
+df_reddit_prom.printSchema()
+df_reddit_prom.show()
+
+# Cada conjunto Parquet refleja:
+# *_palabras.parquet → Tendencias temáticas. Palabras más frecuentes, sentimiento predominante y periodo en que fueron mencionadas.
+# *_promedio.parquet → Participación general. Incluye número total de comentarios (n_total), suma de interacciones (suma_interaccion) y el promedio de participación (promedio_interaccion).
+# *_rangos.parquet → Participación estructurada. Distribuye los comentarios por niveles de interacción (0–1, 2–5, 6–10, 10+).
+# *_engagement.parquet → Relación longitud–interacción. Mide el promedio de interacción por tipo de comentario (Corto, Medio, Largo), con el total de comentarios (n_comentarios) y el total estimado de interacciones (total_interaccion_estimado).

@@ -14,7 +14,7 @@ def main():
     print(">>> INICIANDO TRANSFORMACIÓN")
     spark = get_spark()
     yt_clean, rd_clean = transformation(spark)
-
+    
     # --- CARGA ---
     print(">>> INICIANDO CARGA")
     load(yt_clean, rd_clean)

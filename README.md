@@ -101,6 +101,7 @@ hdfs dfs -mkdir -p /user/ripley/analytics
 
 # Permisos (opcional)
 hdfs dfs -chmod -R 755 /user/ripley
+hdfs dfs -chmod -R 777 /user/ripley/processed
 
 ## COMANDOS EXTRAS:
 mkdir -p /home/matias/hadoopdata/hdfs/namenode

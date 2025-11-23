@@ -1,40 +1,52 @@
-from pyspark.sql import functions as F
+import pandas as pd
+from typing import Iterator
+from pyspark.sql.functions import pandas_udf
 from pyspark.sql.types import StringType
-from transformers import pipeline
 from modulo_carga.load_sentiment import load_sentiment
+from transformers import pipeline
+import logging
 
-# Cargar modelo BETO
-sentiment_pipeline = pipeline(
-    "sentiment-analysis",
-    model="finiteautomata/beto-sentiment-analysis"
-)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Función para clasificar sentimiento
-def analizar_sentimiento(texto):
-    if not texto or texto.strip() == "":
-        return "neutral"
-    try:
-        result = sentiment_pipeline(texto[:512])[0]
-        label = result["label"].lower()   # BETO devuelve: POS, NEG, NEU
-        if "neg" in label:
-            return "negativo"
-        elif "neu" in label:
-            return "neutral"
-        else:
-            return "positivo"
-    except Exception:
-        return "neutral"
+@pandas_udf(StringType())
+def analizar_sentimiento_beto(iterator: Iterator[pd.Series]) -> Iterator[pd.Series]:
+    model_name = "finiteautomata/beto-sentiment-analysis"
+    
+    sentiment_pipeline = pipeline(
+        "sentiment-analysis", 
+        model=model_name, 
+        tokenizer=model_name,
+        truncation=True, 
+        max_length=512
+    )
 
-sentiment_udf = F.udf(analizar_sentimiento, StringType())
+    for batch in iterator:
+        texts = batch.fillna("").tolist()
+        predictions = []
+        try:
+            results = sentiment_pipeline(texts)
+            for res in results:
+                label = res['label'].lower() 
+                if "neg" in label:
+                    predictions.append("negativo")
+                elif "neu" in label:
+                    predictions.append("neutral")
+                else:
+                    predictions.append("positivo")
+        except Exception as e:
+            logger.error(f"Error en inferencia batch: {e}")
+            predictions = ["neutral"] * len(texts)
+
+        yield pd.Series(predictions)
 
 def ejecutar_sentimiento(df_youtube, df_reddit):
-    print(">>> Aplicando modelo de sentimiento BETO (español)")
+    logger.info(">>> Aplicando modelo de sentimiento BETO, Optimizado Pandas UDF")
     
-    yt_sent = df_youtube.withColumn("sentimiento", sentiment_udf(F.col("comment")))
-    rd_sent = df_reddit.withColumn("sentimiento", sentiment_udf(F.col("comment")))
+    yt_sent = df_youtube.withColumn("sentimiento", analizar_sentimiento_beto("comment"))
+    rd_sent = df_reddit.withColumn("sentimiento", analizar_sentimiento_beto("comment"))
     
-    # Guardar resultados
     load_sentiment(yt_sent, rd_sent)
     
-    print("Análisis de sentimiento completado y guardado en HDFS.")
+    logger.info(">>> Análisis de sentimiento completado y guardado en HDFS.")
     return yt_sent, rd_sent

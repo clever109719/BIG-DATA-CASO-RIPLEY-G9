@@ -1,14 +1,17 @@
 from pyspark.sql import SparkSession
-from modulo_machine_learning.beto_sentiment import ejecutar_sentimiento
+from modulo_machine_learning.beto_sentiment import ejecutar_sentimiento 
 from modulo_carga.config import PROCESSED_YT_PATH, PROCESSED_RD_PATH
+import logging
+
+logger = logging.getLogger(__name__)
 
 def sentiment_process(spark: SparkSession):
-
-    print(">>> Cargando datos limpios para análisis de sentimiento")
+    logger.info(">>> Cargando datos limpios para análisis de sentimiento")
+    
     df_youtube = spark.read.parquet(PROCESSED_YT_PATH)
     df_reddit = spark.read.parquet(PROCESSED_RD_PATH)
 
-    print(">>> Ejecutando modelo BETO sobre comentarios")
+    logger.info(">>> Ejecutando modelo BETO sobre comentarios (Batch Inference)")
     ejecutar_sentimiento(df_youtube, df_reddit)
 
-    print(">>> Resultados de sentimiento almacenados correctamente.")
+    logger.info(">>> Resultados de sentimiento almacenados correctamente.")

@@ -1,18 +1,29 @@
+import logging
 from modulo_extraccion_datos.youtube_client import fetch_youtube_data, count_videos_and_comments
 from modulo_extraccion_datos.reddit_client import fetch_reddit_data, count_posts_and_comments
 from modulo_extraccion_datos.hdfs_client import save_to_hdfs
 from modulo_extraccion_datos.config import OUTPUT_YOUTUBE_HDFS_PATH, OUTPUT_REDDIT_HDFS_PATH
 
+# Configuración del logger
+logger = logging.getLogger(__name__)
+
 def extraction():
+    logger.info(">>> Iniciando extracción de datos desde APIs...")
+
     # YouTube
+    logger.info("Consultando API de YouTube...")
     all_youtube = fetch_youtube_data()
     save_to_hdfs(all_youtube, OUTPUT_YOUTUBE_HDFS_PATH)
+    
     total_videos, total_comments = count_videos_and_comments(all_youtube)
-    print(f"[YouTube] Total videos: {total_videos}, Total comentarios: {total_comments}")
+    logger.info(f"[YouTube] Extracción exitosa: {total_videos} videos, {total_comments} comentarios.")
 
     # Reddit
+    logger.info("Consultando API de Reddit...")
     all_reddit = fetch_reddit_data()
     save_to_hdfs(all_reddit, OUTPUT_REDDIT_HDFS_PATH)
+    
     total_posts, total_comments_reddit = count_posts_and_comments(all_reddit)
-    print(f"[Reddit] Total posts: {total_posts}, Total comentarios: {total_comments_reddit}")
-
+    logger.info(f"[Reddit] Extracción exitosa: {total_posts} posts, {total_comments_reddit} comentarios.")
+    
+    logger.info(">>> Extracción y guardado en capa RAW completados.")
